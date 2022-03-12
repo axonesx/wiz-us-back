@@ -1,5 +1,6 @@
+import { Activity } from '@/models/activities/interface/activities.interface';
+import { User } from '@/models/users/interface/users.interface';
 import { Request } from 'express';
-import { User } from '@interfaces/users.interface';
 
 export interface DataStoredInToken {
   id: number;

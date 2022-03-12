@@ -2,8 +2,8 @@ import { hash } from 'bcrypt';
 import DB from '@databases';
 import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
-import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
+import { User } from '@/models/users/interface/users.interface';
 
 class UserService {
   public users = DB.Users;

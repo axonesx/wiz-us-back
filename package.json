@@ -1,12 +1,13 @@
 {
   "name": "wiz-us-back",
   "version": "0.0.0",
-  "description": "TypeScript + Sequelize + MySQL + Express API Server",
+  "description": "TypeScript + Sequelize + postgres + Express API Server",
   "author": "",
   "license": "ISC",
   "scripts": {
     "start": "npm run build && cross-env NODE_ENV=production node dist/server.js",
     "dev": "cross-env NODE_ENV=development nodemon",
+    "nodemon": "nodemon src/index.ts",
     "build": "tsc && tsc-alias",
     "build:swc": "swc src -d dist --source-maps --copy-files",
     "test": "jest --forceExit --detectOpenHandles",
@@ -35,6 +36,7 @@
     "sequelize": "^6.6.5",
     "swagger-jsdoc": "^6.0.0",
     "swagger-ui-express": "^4.1.6",
+    "typesafe-i18n": "^4.4.2",
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^4.5.5"
   },

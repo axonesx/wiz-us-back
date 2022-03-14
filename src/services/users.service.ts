@@ -4,6 +4,8 @@ import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
 import { User } from '@/models/users/interface/users.interface';
+import L from '../i18n/i18n-node'
+import { Locale } from 'typesafe-i18n/types/core';
 
 class UserService {
   public users = DB.Users;
@@ -13,31 +15,31 @@ class UserService {
     return allUser;
   }
 
-  public async findUserById(userId: number): Promise<User> {
-    if (isEmpty(userId)) throw new HttpException(400, "You're not userId");
+  public async findUserById(userId: number, locale: Locale): Promise<User> {
+    if (isEmpty(userId)) throw new HttpException(400, L[locale].USER_HTTP_400_ID());
 
     const findUser: User = await this.users.findByPk(userId);
-    if (!findUser) throw new HttpException(409, "You're not user");
+    if (!findUser) throw new HttpException(409, L[locale].HTTP_USER_409_USER());
 
     return findUser;
   }
 
-  public async createUser(userData: CreateUserDto): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
+  public async createUser(userData: CreateUserDto, locale: Locale): Promise<User> {
+    if (isEmpty(userData)) throw new HttpException(400, L[locale].HTTP_USER_400_DATA());
 
     const findUser: User = await this.users.findOne({ where: { email: userData.email } });
-    if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
+    if (findUser) throw new HttpException(409, L[locale].HTTP_USER_409_EMAIL({ mail: userData.email }));
 
     const hashedPassword = await hash(userData.password, 10);
     const createUserData: User = await this.users.create({ ...userData, password: hashedPassword });
     return createUserData;
   }
 
-  public async updateUser(userId: number, userData: CreateUserDto): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
+  public async updateUser(userId: number, userData: CreateUserDto, locale: Locale): Promise<User> {
+    if (isEmpty(userData)) throw new HttpException(400, L[locale].HTTP_USER_400_DATA());
 
     const findUser: User = await this.users.findByPk(userId);
-    if (!findUser) throw new HttpException(409, "You're not user");
+    if (!findUser) throw new HttpException(409, L[locale].HTTP_USER_409_USER());
 
     const hashedPassword = await hash(userData.password, 10);
     await this.users.update({ ...userData, password: hashedPassword }, { where: { id: userId } });
@@ -46,11 +48,11 @@ class UserService {
     return updateUser;
   }
 
-  public async deleteUser(userId: number): Promise<User> {
-    if (isEmpty(userId)) throw new HttpException(400, "You're not userId");
+  public async deleteUser(userId: number, locale: Locale): Promise<User> {
+    if (isEmpty(userId)) throw new HttpException(400, L[locale].USER_HTTP_400_ID());
 
     const findUser: User = await this.users.findByPk(userId);
-    if (!findUser) throw new HttpException(409, "You're not user");
+    if (!findUser) throw new HttpException(409, L[locale].HTTP_USER_409_USER());
 
     await this.users.destroy({ where: { id: userId } });
 

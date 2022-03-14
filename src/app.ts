@@ -12,8 +12,11 @@ import DB from '@databases';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
+import { loadAllLocales } from './i18n/i18n-util.sync'
+
 
 class App {
+
   public app: express.Application;
   public env: string;
   public port: string | number;
@@ -25,6 +28,7 @@ class App {
 
     this.connectToDatabase();
     this.initializeMiddlewares();
+    this.loadAllLocal();
     this.initializeRoutes(routes);
     this.initializeSwagger();
     this.initializeErrorHandling();
@@ -57,6 +61,11 @@ class App {
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
   }
+  
+  private loadAllLocal() {
+    loadAllLocales();
+  }
+
 
   private initializeRoutes(routes: Routes[]) {
     routes.forEach(route => {

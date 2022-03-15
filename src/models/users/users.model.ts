@@ -1,4 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
+import { ActivityModel } from '../activities/activities.model';
 import { User } from './interface/users.interface';
 
 export type UserCreationAttributes = Optional<User, 'id'>;
@@ -25,11 +26,17 @@ export default function (sequelize: Sequelize): typeof UserModel {
       },
       email: {
         allowNull: false,
-        type: DataTypes.STRING(255),
+        type: DataTypes.STRING(255),      
+        validate: {
+          isEmail: true
+        },
       },
       password: {
         allowNull: false,
-        type: DataTypes.STRING(255),
+        type: DataTypes.STRING(255),      
+        validate: {
+          isEmail: true
+        },
       },
       firstName: {
         allowNull: false,
@@ -49,6 +56,5 @@ export default function (sequelize: Sequelize): typeof UserModel {
       sequelize,
     },
   );
-
   return UserModel;
 }

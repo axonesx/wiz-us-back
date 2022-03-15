@@ -5,6 +5,8 @@ import ActivityModel from '@/models/activities/activities.model';
 import OpinionModel from '@/models/opinions/opinions.model';
 import TypeModel from '@/models/types/types.model';
 import NotificationModel from '@/models/notifications/notifications.model';
+import User_ActivityModel from '@/models/associations/user_activity/user_activity.model';
+import User_OpinionsModel from '@/models/associations/user_opinions/user_opinions.model';
 import { logger } from '@utils/logger';
 
 const sequelize = new Sequelize.Sequelize(DB_DATABASE, DB_USER, DB_PASSWORD, {
@@ -43,9 +45,17 @@ const DB = {
   Opinions: OpinionModel(sequelize),
   Types: TypeModel(sequelize),
   Notifications: NotificationModel(sequelize),
+  User_Activity: User_ActivityModel(sequelize),
   sequelize, // connection instance (RAW queries)
   Sequelize, // library
 };
+
+DB.Users.hasMany(DB.Opinions, {
+  sourceKey: 'id',
+  foreignKey: 'ownerId',
+  as: 'opinions'
+});
+DB.Opinions.belongsTo(DB.Users, { targetKey: 'id' });
 
 export default DB;
 

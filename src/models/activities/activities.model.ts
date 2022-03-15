@@ -1,4 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
+import { UserModel } from '../users/users.model';
 //import { User } from '@/models/users/interface/users.interface';
 import { Activity } from './interface/activities.interface';
 

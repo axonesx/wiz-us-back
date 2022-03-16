@@ -6,7 +6,6 @@ import OpinionModel from '@/models/opinions/opinions.model';
 import TypeModel from '@/models/types/types.model';
 import NotificationModel from '@/models/notifications/notifications.model';
 import User_ActivityModel from '@/models/associations/user_activity/user_activity.model';
-import User_OpinionsModel from '@/models/associations/user_opinions/user_opinions.model';
 import { logger } from '@utils/logger';
 
 const sequelize = new Sequelize.Sequelize(DB_DATABASE, DB_USER, DB_PASSWORD, {
@@ -52,10 +51,31 @@ const DB = {
 
 DB.Users.hasMany(DB.Opinions, {
   sourceKey: 'id',
-  foreignKey: 'ownerId',
-  as: 'opinions'
+  foreignKey: 'userAuthorId',
+  as: 'opinionAuthor'
 });
 DB.Opinions.belongsTo(DB.Users, { targetKey: 'id' });
+
+DB.Users.hasMany(DB.Opinions, {
+  sourceKey: 'id',
+  foreignKey: 'userTargetId',
+  as: 'opinionTarget'
+});
+DB.Opinions.belongsTo(DB.Users, { targetKey: 'id' });
+
+DB.Users.hasMany(DB.Activities, {
+  sourceKey: 'id',
+  foreignKey: 'ownerId',
+  as: 'ownActivity'
+});
+DB.Activities.belongsTo(DB.Users, { targetKey: 'id' });
+
+DB.Users.hasMany(DB.Notifications, {
+  sourceKey: 'id',
+  foreignKey: 'userId',
+  as: 'notificationTarget'
+});
+DB.Notifications.belongsTo(DB.Users, { targetKey: 'id' });
 
 export default DB;
 

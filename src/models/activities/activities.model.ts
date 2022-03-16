@@ -8,6 +8,8 @@ export type ActivityCreationAttributes = Optional<Activity, 'id' | 'description'
 export class ActivityModel extends Model<Activity, ActivityCreationAttributes> implements Activity {
 
   public id: number;
+  public ownerId: number;
+  public attendeeId: number;
   public title: string;
   public description: string;
   public date: Date;
@@ -31,6 +33,14 @@ export default function (sequelize: Sequelize): typeof ActivityModel {
         autoIncrement: true,
         primaryKey: true,
         type: DataTypes.INTEGER,
+      },
+      ownerId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      attendeeId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
       title: {
         allowNull: false,

@@ -1,5 +1,7 @@
 export interface Activity {
   id: number;
+  ownerId: number;
+  attendeeId: number;
   title: string;
   description: string;
   date: Date;

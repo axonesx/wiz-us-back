@@ -8,6 +8,7 @@ export class NotificationModel extends Model<Notification, NotificationCreationA
   public id: number;
   public title: string;
   public message: string;
+  public userId: number;
 
   public readonly createdAt!: Date;
   //public readonly createdBy!: User;
@@ -23,6 +24,10 @@ export default function (sequelize: Sequelize): typeof NotificationModel {
       id: {
         autoIncrement: true,
         primaryKey: true,
+        type: DataTypes.INTEGER,
+      },
+      userId: {
+        allowNull: false,
         type: DataTypes.INTEGER,
       },
       title: {

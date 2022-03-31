@@ -7,7 +7,8 @@ export type OpinionCreationAttributes = Optional<Opinion, 'id'>;
 export class OpinionModel extends Model<Opinion, OpinionCreationAttributes> implements Opinion {
 
   public id: number;
-  public ownerId: number;
+  public userAuthorId: number;
+  public userTargetId: number;
   public note: number;
   public title: string;
   public comment: string;
@@ -28,7 +29,11 @@ export default function (sequelize: Sequelize): typeof OpinionModel {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      ownerId: {
+      userAuthorId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      userTargetId: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },

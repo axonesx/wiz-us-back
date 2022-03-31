@@ -6,7 +6,6 @@ import OpinionModel from '@/models/opinions/opinions.model';
 import TypeModel from '@/models/types/types.model';
 import NotificationModel from '@/models/notifications/notifications.model';
 import User_ActivityModel from '@/models/associations/user_activity/user_activity.model';
-import User_OpinionsModel from '@/models/associations/user_opinions/user_opinions.model';
 import { logger } from '@utils/logger';
 
 const sequelize = new Sequelize.Sequelize(DB_DATABASE, DB_USER, DB_PASSWORD, {

@@ -52,10 +52,31 @@ const DB = {
 
 DB.Users.hasMany(DB.Opinions, {
   sourceKey: 'id',
-  foreignKey: 'ownerId',
-  as: 'opinions'
+  foreignKey: 'userAuthorId',
+  as: 'opinionAuthor'
 });
 DB.Opinions.belongsTo(DB.Users, { targetKey: 'id' });
+
+DB.Users.hasMany(DB.Opinions, {
+  sourceKey: 'id',
+  foreignKey: 'userTargetId',
+  as: 'opinionTarget'
+});
+DB.Opinions.belongsTo(DB.Users, { targetKey: 'id' });
+
+DB.Users.hasMany(DB.Activities, {
+  sourceKey: 'id',
+  foreignKey: 'ownerId',
+  as: 'ownActivity'
+});
+DB.Activities.belongsTo(DB.Users, { targetKey: 'id' });
+
+DB.Users.hasMany(DB.Notifications, {
+  sourceKey: 'id',
+  foreignKey: 'userId',
+  as: 'notificationTarget'
+});
+DB.Notifications.belongsTo(DB.Users, { targetKey: 'id' });
 
 export default DB;
 

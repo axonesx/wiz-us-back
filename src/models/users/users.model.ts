@@ -48,7 +48,7 @@ export default function (sequelize: Sequelize): typeof UserModel {
       },
       birthday: {
         allowNull: false,
-        type: DataTypes.DATEONLY(),
+        type: DataTypes.DATE(),
       },
     },
     {

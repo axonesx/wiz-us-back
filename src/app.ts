@@ -61,11 +61,10 @@ class App {
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
   }
-  
+
   private loadAllLocal() {
     loadAllLocales();
   }
-
 
   private initializeRoutes(routes: Routes[]) {
     routes.forEach(route => {

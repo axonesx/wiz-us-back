@@ -26,17 +26,14 @@ export default function (sequelize: Sequelize): typeof UserModel {
       },
       email: {
         allowNull: false,
-        type: DataTypes.STRING(255),      
+        type: DataTypes.STRING(255),
         validate: {
           isEmail: true
         },
       },
       password: {
         allowNull: false,
-        type: DataTypes.STRING(255),      
-        validate: {
-          isEmail: true
-        },
+        type: DataTypes.STRING(255),
       },
       firstName: {
         allowNull: false,

@@ -1,16 +1,22 @@
-import { Activity } from '@/models/activities/interface/activities.interface';
 import { User } from '@/models/users/interface/users.interface';
 import { Request } from 'express';
+import { JwtPayload } from 'jsonwebtoken';
 
-export interface DataStoredInToken {
-  id: number;
+interface DataStoredInToken extends JwtPayload {
+  id: number
+  firstName: string
+  lastName: string
+  email: string
+  xsrfToken: string
 }
 
-export interface TokenData {
-  token: string;
-  expiresIn: number;
+interface TokenData {
+  token: string
+  expiresIn: number
 }
 
-export interface RequestWithUser extends Request {
-  user: User;
+interface RequestWithUser extends Request {
+  user: User
 }
+
+export { RequestWithUser, TokenData, DataStoredInToken }

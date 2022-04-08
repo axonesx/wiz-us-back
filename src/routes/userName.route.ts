@@ -7,8 +7,6 @@ class UserNameRoute implements Routes {
   public router = Router()
   public userNameController = new userNameController()
 
-  
-
   constructor() {
     this.initializeRoutes()
   }

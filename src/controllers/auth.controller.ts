@@ -23,17 +23,15 @@ class AuthController {
   public logIn = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userData: LoginUserDto = req.body
-      const { token, refreshToken, xsrfToken, optionsTokenCookie, optionsRefreshTokenCookie, findUser } = await this.authService.login(userData)
+      // const { token, refreshToken, xsrfToken, optionsTokenCookie, optionsRefreshTokenCookie, findUser } = await this.authService.login(userData)
+      const { token, xsrfToken, optionsTokenCookie, findUser } = await this.authService.login(userData)
 
       res.cookie('access-token', token, optionsTokenCookie)
-      res.cookie('refresh-token', refreshToken, optionsRefreshTokenCookie)
-      res.status(200).json({ 
-        data: { 
-          token, 
-          xsrfToken, 
-          accessTokenExpiresIn: ACCESS_TOKEN_EXPIRES_IN, 
-          refreshTokenExpiresIn: REFRESH_TOKEN_EXPIRES_IN, 
-          findUser 
+      // res.cookie('refresh-token', refreshToken, optionsRefreshTokenCookie)
+      res.status(200).json({
+        data: {
+          xsrfToken,
+          findUser
         },
         message: 'login'
       })
@@ -47,7 +45,7 @@ class AuthController {
       const userData: User = req.user
       const logOutUserData: User = await this.authService.logout(userData)
 
-      res.setHeader('Set-Cookie', ['Authorization= Max-age=0'])
+      res.cookie('access-token', '', {maxAge: 0})
       res.status(200).json({ data: logOutUserData, message: 'logout' })
     } catch (error) {
       next(error)

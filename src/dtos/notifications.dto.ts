@@ -1,11 +1,11 @@
-import { IsString } from 'class-validator';
+import { IsString } from 'class-validator'
 
 export class CreateNotificationDto {
 
   @IsString()
-  public title: string;
+  public title: string
 
   @IsString()
-  public message: string;
+  public message: string
 
 }

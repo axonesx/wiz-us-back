@@ -1,19 +1,18 @@
-import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { ActivityModel } from '../activities/activities.model';
-import { User } from './interface/users.interface';
+import { Sequelize, DataTypes, Model, Optional } from 'sequelize'
+import { User } from './interface/users.interface'
 
-export type UserCreationAttributes = Optional<User, 'id'>;
+export type UserCreationAttributes = Optional<User, 'id'>
 
 export class UserModel extends Model<User, UserCreationAttributes> implements User {
-  public id: number;
-  public email: string;
-  public password: string;
-  public firstName: string;
-  public lastName: string;
-  public birthday: Date;
+  public id: number
+  public email: string
+  public password: string
+  public firstName: string
+  public lastName: string
+  public birthday: Date
 
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  public readonly createdAt!: Date
+  public readonly updatedAt!: Date
 }
 
 export default function (sequelize: Sequelize): typeof UserModel {
@@ -52,6 +51,6 @@ export default function (sequelize: Sequelize): typeof UserModel {
       tableName: 'users',
       sequelize,
     },
-  );
-  return UserModel;
+  )
+  return UserModel
 }

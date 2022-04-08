@@ -1,28 +1,28 @@
-import { IsString, IsEmail, IsNumber, IsDate } from 'class-validator';
+import { IsString, IsEmail, IsNumber, IsDate } from 'class-validator'
 
 export class CreateActivityDto {
   @IsEmail()
-  public email: string;
+  public email: string
 
   @IsString()
-  public title: string;
+  public title: string
 
   @IsString()
-  public description: string;
+  public description: string
 
   @IsDate()
-  public date: Date;
+  public date: Date
 
   @IsNumber()
-  public duration: number;
+  public duration: number
 
   @IsString()
-  public type: string;
+  public type: string
 
   @IsString()
-  public image: string;
+  public image: string
 
   @IsString()
-  public location: string;
+  public location: string
 
 }

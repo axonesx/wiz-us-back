@@ -1,5 +1,5 @@
-import { I18n } from '@/i18n';
-import { NextFunction, Request, Response } from 'express';
+import { I18n } from '@/i18n'
+import { NextFunction, Request, Response } from 'express'
 import L from '../i18n/i18n-node'
 
 class userNameController {
@@ -10,9 +10,9 @@ class userNameController {
       locale = 'en'
       res.send(L[locale].HI({ name }))
     } catch (error) {
-      next(error);
+      next(error)
     }
-  };
+  }
 }
 
-export default userNameController;
+export default userNameController

@@ -1,29 +1,27 @@
-import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { UserModel } from '../users/users.model';
-//import { User } from '@/models/users/interface/users.interface';
-import { Activity } from './interface/activities.interface';
+import { Sequelize, DataTypes, Model, Optional } from 'sequelize'
+import { Activity } from './interface/activities.interface'
 
-export type ActivityCreationAttributes = Optional<Activity, 'id' | 'description' | 'duration' | 'type' | 'image'>;
+export type ActivityCreationAttributes = Optional<Activity, 'id' | 'description' | 'duration' | 'type' | 'image'>
 
 export class ActivityModel extends Model<Activity, ActivityCreationAttributes> implements Activity {
 
-  public id: number;
-  public ownerId: number;
-  public attendeeId: number;
-  public title: string;
-  public description: string;
-  public date: Date;
-  public duration: number;
-  public type: string;
-  public image: string;
-  public location: string;
+  public id: number
+  public ownerId: number
+  public attendeeId: number
+  public title: string
+  public description: string
+  public date: Date
+  public duration: number
+  public type: string
+  public image: string
+  public location: string
 
-  public readonly createdAt!: Date;
-  //public readonly createdBy!: User;
-  public readonly updatedAt!: Date;
-  //public readonly updatedBy!: User;
-  public readonly deletedAt!: Date;
-  //public readonly deleteBy!: User;
+  public readonly createdAt!: Date
+  //public readonly createdBy!: User
+  public readonly updatedAt!: Date
+  //public readonly updatedBy!: User
+  public readonly deletedAt!: Date
+  //public readonly deleteBy!: User
 }
 
 export default function (sequelize: Sequelize): typeof ActivityModel {
@@ -76,7 +74,7 @@ export default function (sequelize: Sequelize): typeof ActivityModel {
       sequelize,
       paranoid: true
     },
-  );
+  )
 
-  return ActivityModel;
+  return ActivityModel
 }

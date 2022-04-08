@@ -1,6 +1,6 @@
-import { User } from '@/models/users/interface/users.interface';
-import { Request } from 'express';
-import { JwtPayload } from 'jsonwebtoken';
+import { User } from '@/models/users/interface/users.interface'
+import { Request } from 'express'
+import { JwtPayload } from 'jsonwebtoken'
 
 interface DataStoredInToken extends JwtPayload {
   id: number

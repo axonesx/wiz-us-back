@@ -1,21 +1,21 @@
-import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { Notification } from './interface/notifications.interface';
+import { Sequelize, DataTypes, Model, Optional } from 'sequelize'
+import { Notification } from './interface/notifications.interface'
 
-export type NotificationCreationAttributes = Optional<Notification, 'id'>;
+export type NotificationCreationAttributes = Optional<Notification, 'id'>
 
 export class NotificationModel extends Model<Notification, NotificationCreationAttributes> implements Notification {
 
-  public id: number;
-  public title: string;
-  public message: string;
-  public userId: number;
+  public id: number
+  public title: string
+  public message: string
+  public userId: number
 
-  public readonly createdAt!: Date;
-  //public readonly createdBy!: User;
-  public readonly updatedAt!: Date;
-  //public readonly updatedBy!: User;
-  public readonly deletedAt!: Date;
-  //public readonly deleteBy!: User;
+  public readonly createdAt!: Date
+  //public readonly createdBy!: User
+  public readonly updatedAt!: Date
+  //public readonly updatedBy!: User
+  public readonly deletedAt!: Date
+  //public readonly deleteBy!: User
 }
 
 export default function (sequelize: Sequelize): typeof NotificationModel {
@@ -44,7 +44,7 @@ export default function (sequelize: Sequelize): typeof NotificationModel {
       sequelize,
       paranoid: true
     },
-  );
+  )
 
-  return NotificationModel;
+  return NotificationModel
 }

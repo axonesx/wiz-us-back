@@ -27,7 +27,8 @@ class AuthService {
     return createUserData
   }
 
-  public async login(userData: LoginUserDto): Promise<{ token: string, refreshToken: string, xsrfToken: string, optionsTokenCookie: CookieOptions, optionsRefreshTokenCookie: CookieOptions, findUser: User }> {
+  // public async login(userData: LoginUserDto): Promise<{ token: string, refreshToken: string, xsrfToken: string, optionsTokenCookie: CookieOptions, optionsRefreshTokenCookie: CookieOptions, findUser: User }> {
+  public async login(userData: LoginUserDto): Promise<{ token: string, xsrfToken: string, optionsTokenCookie: CookieOptions, findUser: User }> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData")
 
     const findUser: User = await this.users.findOne({ where: { email: userData.email } })
@@ -37,23 +38,25 @@ class AuthService {
     if (!isPasswordMatching) throw new HttpException(409, "You're password not matching")
 
     const xsrfToken = this.createXSRFToken()
-    const optionsToken: SignOptions = {expiresIn: ACCESS_TOKEN_EXPIRES_IN}
+    const optionsToken: SignOptions = {expiresIn: parseInt(ACCESS_TOKEN_EXPIRES_IN, 10)}
     const token: string = this.createToken(findUser, ACCESS_TOKEN_SECRET, optionsToken, xsrfToken)
-    const optionsRefreshToken: SignOptions = {expiresIn: REFRESH_TOKEN_EXPIRES_IN}
-    const refreshToken: string = this.createToken(findUser, REFRESH_TOKEN_SECRET, optionsRefreshToken)
-    const optionsTokenCookie = {      
+    // const optionsRefreshToken: SignOptions = {expiresIn: parseInt(REFRESH_TOKEN_EXPIRES_IN, 10)}
+    // const refreshToken: string = this.createToken(findUser, REFRESH_TOKEN_SECRET, optionsRefreshToken)
+    const optionsTokenCookie = {
       httpOnly: true,
       secure: true,
-      maxAge: parseInt(ACCESS_TOKEN_EXPIRES_IN, 10)
+      maxAge: parseInt(ACCESS_TOKEN_EXPIRES_IN, 10),
+      path: '*'
     }
-    const optionsRefreshTokenCookie = {      
-      httpOnly: true,
-      secure: true,
-      maxAge: parseInt(REFRESH_TOKEN_EXPIRES_IN, 10),
-      path: '/token'
-    }
+    // const optionsRefreshTokenCookie = {
+    //   httpOnly: true,
+    //   secure: true,
+    //   maxAge: parseInt(REFRESH_TOKEN_EXPIRES_IN, 10),
+    //   path: '/token'
+    // }
 
-    return { token, refreshToken, xsrfToken, optionsTokenCookie, optionsRefreshTokenCookie, findUser }
+    // return { token, refreshToken, xsrfToken, optionsTokenCookie, optionsRefreshTokenCookie, findUser }
+    return { token, xsrfToken, optionsTokenCookie, findUser }
   }
 
   public async logout(userData: User): Promise<User> {
@@ -67,7 +70,7 @@ class AuthService {
 
   public createXSRFToken ():string {
     const xsrfToken = crypto.randomBytes(64).toString('hex')
-    return xsrfToken 
+    return xsrfToken
   }
 
   public createToken(user: User, secretKey: string, options: SignOptions, xsrfToken?: string ): string {

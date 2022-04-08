@@ -1,7 +1,8 @@
 export interface Opinion {
-  id: number;
-  userAuthorId: number;
-  note: number;
-  title: string;
-  comment: string;
+  id: number
+  userAuthorId: number
+  userTargetId: number
+  note: number
+  title: string
+  comment: string
 }

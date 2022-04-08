@@ -1,11 +1,11 @@
-import { IsString } from 'class-validator';
+import { IsString } from 'class-validator'
 
 export class CreateTypeDto {
 
   @IsString()
-  public title: string;
+  public title: string
 
   @IsString()
-  public description: string;
+  public description: string
 
 }

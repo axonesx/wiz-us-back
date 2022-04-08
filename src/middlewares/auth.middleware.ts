@@ -10,34 +10,34 @@ const userService = new UserService()
 const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
     const { cookies, headers } = req
- 
-    if (!cookies || !cookies.access_token) {
-      next(new HttpException(404, 'Authentication token missing'))
+
+    if (!cookies || !cookies['access-token']) {
+      return next(new HttpException(404, 'Authentication token missing'))
     }
-    const accessToken: string = cookies.access_token
- 
+    const accessToken: string = cookies['access-token']
+
     if (!headers || !headers['x-xsrf-token']) {
-      next(new HttpException(404, 'Missing XSRF token in headers'))
+      return next(new HttpException(404, 'Missing XSRF token in headers'))
     }
-    const xsrfToken = headers.authorization.split(' ')[1]
- 
+    const xsrfToken = headers['x-xsrf-token']
+
     const decodedToken = verify(accessToken, ACCESS_TOKEN_SECRET) as DataStoredInToken
- 
+
     if (xsrfToken !== decodedToken.xsrfToken) {
-      next(new HttpException(498, 'Bad xsrf token'))
+      return next(new HttpException(498, 'Bad xsrf token'))
     }
- 
+
     const userId = decodedToken.id
     const user = await userService.findUserById(userId)
     if (!user) {
       return res.status(401).json({ message: `User ${userId} not exists` })
     }
- 
+
     req.user = user
- 
+
     return next()
   } catch (err) {
-    next(new HttpException(500, 'Internal error'))
+    return next(new HttpException(500, 'Internal error'))
   }
 }
 

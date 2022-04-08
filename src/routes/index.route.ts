@@ -7,8 +7,6 @@ class IndexRoute implements Routes {
   public router = Router()
   public indexController = new IndexController()
 
-  
-
   constructor() {
     this.initializeRoutes()
   }

@@ -4,7 +4,7 @@ import { User } from '@models/users/interface/users.interface'
 import userService from '@services/users.service'
 
 class UsersController {
-  
+
   public userService = new userService()
 
   public getUsers = async (req: Request, res: Response, next: NextFunction) => {

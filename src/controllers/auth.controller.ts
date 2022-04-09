@@ -4,7 +4,6 @@ import { User } from '@models/users/interface/users.interface'
 import { RequestWithUser } from '@interfaces/auth.interface'
 import AuthService from '@services/auth.service'
 import { LoginUserDto } from '@/dtos/users/userLogin.dto'
-import { ACCESS_TOKEN_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN } from '@/config'
 
 class AuthController {
   public authService = new AuthService()

@@ -4,7 +4,7 @@ import { HttpException } from '@exceptions/HttpException'
 import { Opinion } from '@/models/opinions/interface/opinions.interface'
 import { isEmpty } from '@utils/util'
 
-class Opinionservice {
+class OpinionService {
   public Opinions = DB.Opinions
 
   public async findAllOpinion(): Promise<Opinion[]> {
@@ -50,4 +50,4 @@ class Opinionservice {
   }
 }
 
-export default Opinionservice
+export default OpinionService

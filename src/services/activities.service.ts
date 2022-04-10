@@ -4,7 +4,7 @@ import { HttpException } from '@exceptions/HttpException'
 import { Activity } from '@/models/activities/interface/activities.interface'
 import { isEmpty } from '@utils/util'
 
-class Activitieservice {
+class ActivitieService {
   public Activities = DB.Activities
 
   public async findAllActivity(): Promise<Activity[]> {
@@ -21,18 +21,18 @@ class Activitieservice {
     return findActivity
   }
 
-  public async createActivity(ActivityData: CreateActivityDto): Promise<Activity> {
-    if (isEmpty(ActivityData)) throw new HttpException(400, "You're not ActivityData")
-    const createActivityData: Activity = await this.Activities.create({ ...ActivityData})
+  public async createActivity(activityData: CreateActivityDto): Promise<Activity> {
+    if (isEmpty(activityData)) throw new HttpException(400, "You're not ActivityData")
+    const createActivityData: Activity = await this.Activities.create({ ...activityData})
     return createActivityData
   }
 
-  public async updateActivity(activityId: number, ActivityData: CreateActivityDto): Promise<Activity> {
-    if (isEmpty(ActivityData)) throw new HttpException(400, "You're not ActivityData")
+  public async updateActivity(activityId: number, activityData: CreateActivityDto): Promise<Activity> {
+    if (isEmpty(activityData)) throw new HttpException(400, "You're not ActivityData")
 
     const findActivity: Activity = await this.Activities.findByPk(activityId)
     if (!findActivity) throw new HttpException(409, "You're not Activity")
-    await this.Activities.update({ ...ActivityData}, { where: { id: activityId } })
+    await this.Activities.update({ ...activityData}, { where: { id: activityId } })
 
     const updateActivity: Activity = await this.Activities.findByPk(activityId)
     return updateActivity
@@ -50,4 +50,4 @@ class Activitieservice {
   }
 }
 
-export default Activitieservice
+export default ActivitieService

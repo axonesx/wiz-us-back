@@ -15,50 +15,61 @@ export type Translations = RootTranslation
 
 type RootTranslation = {
 	/**
-	 * Hi {name}! Please leave a star if you like this project: https://github.com/ivanhofer/typesafe-i18n
-	 * @param {string} name
+	 * "Wizz Us Team" <{MAIL_USER}>"
+	 * @param {unknown} MAIL_USER
 	 */
-	HI: RequiredParams<'name'>
+	SET_CONFIRMATION_MAIL_FROM: RequiredParams<'MAIL_USER'>
 	/**
-	 * You're not userId
+	 * Please confirm your account
 	 */
-	HTTP_USER_400_ID: string
+	SET_CONFIRMATION_MAIL_SUBJECT: string
 	/**
-	 * You're not userData
+	 * Hi, 
+		Thank you for subscribing to Wizz-Us. 
+		Please confirm your email by copying and pasting the following link in your browser :
+		{BACK_URL}/signup-confirmation/{confirmationCode}
+	 * @param {unknown} BACK_URL
+	 * @param {unknown} confirmationCode
 	 */
-	HTTP_USER_400_DATA: string
+	SET_CONFIRMATION_MAIL_TEXT: RequiredParams<'BACK_URL' | 'confirmationCode'>
 	/**
-	 * You're not user
+	 * <b>
+			Hi,</br>
+			Thank you for subscribing to Wizz-Us.</br>
+			Please confirm your email by clicking on the following link :</br>
+			<a href='{BACK_URL}/signup-confirmation/{confirmationCode}'> Click here</a>
+		</b>
+	 * @param {unknown} BACK_URL
+	 * @param {unknown} confirmationCode
 	 */
-	HTTP_USER_409_USER: string
-	/**
-	 * You're email {email} already exists
-	 * @param {string} email
-	 */
-	HTTP_USER_409_EMAIL: RequiredParams<'email'>
+	SET_CONFIRMATION_MAIL_HTML: RequiredParams<'BACK_URL' | 'confirmationCode'>
 }
 
 export type TranslationFunctions = {
 	/**
-	 * Hi {name}! Please leave a star if you like this project: https://github.com/ivanhofer/typesafe-i18n
+	 * "Wizz Us Team" <{MAIL_USER}>"
 	 */
-	HI: (arg: { name: string }) => LocalizedString
+	SET_CONFIRMATION_MAIL_FROM: (arg: { MAIL_USER: unknown }) => LocalizedString
 	/**
-	 * You're not userId
+	 * Please confirm your account
 	 */
-	HTTP_USER_400_ID: () => LocalizedString
+	SET_CONFIRMATION_MAIL_SUBJECT: () => LocalizedString
 	/**
-	 * You're not userData
+	 * Hi, 
+		Thank you for subscribing to Wizz-Us. 
+		Please confirm your email by copying and pasting the following link in your browser :
+		{BACK_URL}/signup-confirmation/{confirmationCode}
 	 */
-	HTTP_USER_400_DATA: () => LocalizedString
+	SET_CONFIRMATION_MAIL_TEXT: (arg: { BACK_URL: unknown, confirmationCode: unknown }) => LocalizedString
 	/**
-	 * You're not user
+	 * <b>
+			Hi,</br>
+			Thank you for subscribing to Wizz-Us.</br>
+			Please confirm your email by clicking on the following link :</br>
+			<a href='{BACK_URL}/signup-confirmation/{confirmationCode}'> Click here</a>
+		</b>
 	 */
-	HTTP_USER_409_USER: () => LocalizedString
-	/**
-	 * You're email {email} already exists
-	 */
-	HTTP_USER_409_EMAIL: (arg: { email: string }) => LocalizedString
+	SET_CONFIRMATION_MAIL_HTML: (arg: { BACK_URL: unknown, confirmationCode: unknown }) => LocalizedString
 }
 
 export type Formatters = {}

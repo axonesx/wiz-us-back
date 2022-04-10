@@ -3,10 +3,14 @@ import DB from '@databases'
 import { CreateUserDto } from '@/dtos/users/users.dto'
 import { HttpException } from '@exceptions/HttpException'
 import { isEmpty } from '@utils/util'
-import { User } from '@/models/users/interface/users.interface'
+import { CreateConfirmationDto } from '@/dtos/confirmations.dto'
+import { User } from '@/models/users/users.model'
+import ConfirmationService from '@/services/confirmations.service'
 
 class UserService {
   public users = DB.Users
+  public confirmations = DB.Confirmations
+  public confirmationService = new ConfirmationService()
 
   public async findAllUser(): Promise<User[]> {
     const allUser: User[] = await this.users.findAll()
@@ -27,9 +31,8 @@ class UserService {
 
     const findUser: User = await this.users.findOne({ where: { email: userData.email } })
     if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`)
-
     const hashedPassword = await hash(userData.password, 10)
-    const createUserData: User = await this.users.create({ ...userData, password: hashedPassword })
+    const createUserData: User = await this.users.create({ ...userData, password: hashedPassword})
     return createUserData
   }
 
@@ -41,8 +44,8 @@ class UserService {
 
     const hashedPassword = await hash(userData.password, 10)
     await this.users.update({ ...userData, password: hashedPassword }, { where: { id: userId } })
+    let updateUser: User = await this.users.findByPk(userId)
 
-    const updateUser: User = await this.users.findByPk(userId)
     return updateUser
   }
 

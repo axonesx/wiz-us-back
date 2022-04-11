@@ -39,25 +39,37 @@ class AuthService {
   public async signup(userData: CreateUserDto, locale: Locales): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData")
 
-    const findUser: User = await this.users.findOne({ where: { email: userData.email } })
-    if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`)
+    const findUser: User = await this.users.findOne({ where: { email: userData.email }, include: [this.confirmations] })
+    if (findUser) {
+      if(findUser.Confirmation?.isConfirmed){
+        throw new HttpException(409, `An activated account already exits for this email ${userData.email}.`)
+      } else {
+        const confirmationData = await this.createAndSendSignUpConfirmation(findUser, locale)
+        findUser.Confirmation.code = confirmationData.code
+        await this.confirmationService.updateConfirmation(findUser)
+        return findUser
+      }
+    } else {
+      const hashedPassword = await hash(userData.password, 10)
+      const createUserData: User = await this.users.create({ ...userData, password: hashedPassword })
+      const confirmationData = await this.createAndSendSignUpConfirmation(createUserData, locale)
+      await this.confirmationService.createConfirmation(createUserData, confirmationData)
+      return createUserData
+    }
+  }
 
-    const hashedPassword = await hash(userData.password, 10)
-    const createUserData: User = await this.users.create({ ...userData, password: hashedPassword })
-
-    const confirmationCode = this.tokenService.createToken(createUserData, TOKEN_SECRET, {})
+  public async createAndSendSignUpConfirmation(userData: User, locale: Locales): Promise<CreateConfirmationDto> {
+    const confirmationCode = this.tokenService.createToken(userData, TOKEN_SECRET, {})
     if(!confirmationCode) throw new HttpException(409, `Can't create confirmation code`)
 
     const mailId = await this.emailService.sendSignUpConfirmationMail(userData.email, confirmationCode, locale)
     if(!mailId) throw new HttpException(409, `Can't send the confirmation mail`)
 
-    const confirmationData: CreateConfirmationDto =
-      {
+    const confirmationData: CreateConfirmationDto = {
         code: confirmationCode,
         isConfirmed: false
-      }
-    await this.confirmationService.createConfirmation(createUserData, confirmationData)
-    return createUserData
+    }
+    return confirmationData
   }
 
   // public async login(userData: LoginUserDto): Promise<{ token: string, refreshToken: string, xsrfToken: string, optionsTokenCookie: CookieOptions, optionsRefreshTokenCookie: CookieOptions, findUser: User }> {

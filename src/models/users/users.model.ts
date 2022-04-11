@@ -1,10 +1,16 @@
-import { Sequelize, DataTypes, Model, Optional } from 'sequelize'
-import { User } from './interface/users.interface'
+import { Sequelize, DataTypes, Model,
+  CreationOptional, InferAttributes,
+  InferCreationAttributes, NonAttribute,
+  HasOneCreateAssociationMixin, HasOneGetAssociationMixin,
+  HasOneSetAssociationMixin,
+  Association} from 'sequelize'
+import { Confirmation } from '../confirmation/confirmation.model'
 
-export type UserCreationAttributes = Optional<User, 'id'>
-
-export class UserModel extends Model<User, UserCreationAttributes> implements User {
-  public id: number
+export class User extends Model<
+InferAttributes<User, { omit: 'Confirmation' }>,
+InferCreationAttributes<User, { omit: 'Confirmation' }>
+> implements User {
+  public id: CreationOptional<number>
   public email: string
   public password: string
   public firstName: string
@@ -13,10 +19,21 @@ export class UserModel extends Model<User, UserCreationAttributes> implements Us
 
   public readonly createdAt!: Date
   public readonly updatedAt!: Date
+
+  //SignUpConfirmation methods
+  public getConfirmation: HasOneGetAssociationMixin<Confirmation>
+  public setConfirmation: HasOneSetAssociationMixin<Confirmation, number>
+  public createConfirmation: HasOneCreateAssociationMixin<Confirmation>
+
+  //Associations
+  public Confirmation?: NonAttribute<Confirmation>
+  public static associations: {
+    Confirmation: Association<User, Confirmation>
+  }
 }
 
-export default function (sequelize: Sequelize): typeof UserModel {
-  UserModel.init(
+export default function (sequelize: Sequelize): typeof User {
+  User.init(
     {
       id: {
         autoIncrement: true,
@@ -52,5 +69,5 @@ export default function (sequelize: Sequelize): typeof UserModel {
       sequelize,
     },
   )
-  return UserModel
+  return User
 }

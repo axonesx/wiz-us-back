@@ -4,7 +4,7 @@
  * @returns {Boolean} true & false
  * @description this value is Empty Check
  */
-export const isEmpty = (value: string | number | object): boolean => {
+const isEmpty = (value: string | number | object): boolean => {
   if (value === null) {
     return true;
   } else if (typeof value !== 'number' && value === '') {
@@ -16,4 +16,18 @@ export const isEmpty = (value: string | number | object): boolean => {
   } else {
     return false;
   }
-};
+}
+
+const generateAleatoryString = (length: number): string => {
+  const characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let aleatoryString = '';
+  for (let i = 0; i < length; i++) {
+    aleatoryString += characters[Math.floor(Math.random() * characters.length )];
+  }
+  return aleatoryString
+}
+
+export {
+  isEmpty,
+  generateAleatoryString,
+}

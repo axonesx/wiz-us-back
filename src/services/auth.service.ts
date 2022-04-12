@@ -9,12 +9,13 @@ import { LoginUserDto } from '@/dtos/users/userLogin.dto'
 import { CookieOptions } from 'express'
 import TokenService from '@services/utils/token.service'
 import ConfirmationService from '@/services/confirmations.service'
-import { DataStoredInToken } from '@/interfaces/auth.interface'
+import { DataStoredInToken, UserWithStatus } from '@/interfaces/auth.interface'
 import { CreateConfirmationDto } from '@/dtos/confirmations.dto'
 import { Locales } from '@/i18n/i18n-types'
 import EmailService from './utils/email.service'
 import { User } from '@/models/users/users.model'
 import { logger } from '@/utils/logger'
+import { IUser } from '@/models/users/interface/users.interface'
 
 class AuthService {
   public users = DB.Users
@@ -28,7 +29,7 @@ class AuthService {
     const dataStoredInToken: DataStoredInToken = verify(confirmationCode, TOKEN_SECRET) as DataStoredInToken
 
     if (isEmpty(dataStoredInToken.id)) throw new HttpException(400, "No user ID in confirmation Code")
-    let findUser: User = await this.users.findByPk( dataStoredInToken.id, { include: [this.confirmations] })
+    let findUser: IUser = await this.users.findByPk( dataStoredInToken.id, { include: [this.confirmations] })
     if(findUser.Confirmation.code !== confirmationCode) throw new HttpException(409, "Your confirmation code is expired")
     findUser.Confirmation.isConfirmed=true
     findUser = await this.confirmationService.updateConfirmation(findUser)
@@ -36,10 +37,10 @@ class AuthService {
     if(!findUser.Confirmation.isConfirmed) throw new HttpException(409, "Your account can't be actived")
   }
 
-  public async signup(userData: CreateUserDto, locale: Locales): Promise<User> {
+  public async signup(userData: CreateUserDto, locale: Locales): Promise<UserWithStatus> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData")
 
-    const findUser: User = await this.users.findOne({ where: { email: userData.email }, include: [this.confirmations] })
+    const findUser: IUser = await this.users.findOne({ where: { email: userData.email }, include: [this.confirmations] })
     if (findUser) {
       if(findUser.Confirmation?.isConfirmed){
         throw new HttpException(409, `An activated account already exits for this email ${userData.email}.`)
@@ -47,18 +48,18 @@ class AuthService {
         const confirmationData = await this.createAndSendSignUpConfirmation(findUser, locale)
         findUser.Confirmation.code = confirmationData.code
         await this.confirmationService.updateConfirmation(findUser)
-        return findUser
+        return { user: findUser, isNewUser: false}
       }
     } else {
       const hashedPassword = await hash(userData.password, 10)
-      const createUserData: User = await this.users.create({ ...userData, password: hashedPassword })
+      const createUserData: IUser = await this.users.create({ ...userData, password: hashedPassword })
       const confirmationData = await this.createAndSendSignUpConfirmation(createUserData, locale)
       await this.confirmationService.createConfirmation(createUserData, confirmationData)
-      return createUserData
+      return { user: createUserData, isNewUser: true}
     }
   }
 
-  public async createAndSendSignUpConfirmation(userData: User, locale: Locales): Promise<CreateConfirmationDto> {
+  public async createAndSendSignUpConfirmation(userData: IUser, locale: Locales): Promise<CreateConfirmationDto> {
     const confirmationCode = this.tokenService.createToken(userData, TOKEN_SECRET, {})
     if(!confirmationCode) throw new HttpException(409, `Can't create confirmation code`)
 

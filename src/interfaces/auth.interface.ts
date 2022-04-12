@@ -1,6 +1,12 @@
+import { IUser } from '@/models/users/interface/users.interface'
 import { User } from '@/models/users/users.model'
 import { Request } from 'express'
 import { JwtPayload } from 'jsonwebtoken'
+
+interface UserWithStatus {
+  user: IUser
+  isNewUser: boolean
+}
 
 interface DataStoredInToken extends JwtPayload {
   id: number
@@ -19,4 +25,4 @@ interface RequestWithUser extends Request {
   user: User
 }
 
-export { RequestWithUser, TokenData, DataStoredInToken }
+export { RequestWithUser, TokenData, DataStoredInToken, UserWithStatus }

@@ -1,3 +1,5 @@
+import { Confirmation } from "@/models/confirmation/confirmation.model"
+import { IConfirmation } from "@/models/confirmation/interface/confirmation.interface"
 import { CreationOptional, HasOneCreateAssociationMixin, HasOneGetAssociationMixin, HasOneSetAssociationMixin, Model, NonAttribute } from "sequelize/types"
 
 export interface IUser extends Model {
@@ -7,4 +9,9 @@ export interface IUser extends Model {
   firstName: string
   lastName: string
   birthday: Date
+  Confirmation?: NonAttribute<IConfirmation>
+
+  getConfirmation: HasOneGetAssociationMixin<Confirmation>
+  setConfirmation: HasOneSetAssociationMixin<Confirmation, number>
+  createConfirmation: HasOneCreateAssociationMixin<Confirmation>
 }

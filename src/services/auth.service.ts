@@ -1,63 +1,119 @@
-import { compare, hash } from 'bcrypt';
-import { sign } from 'jsonwebtoken';
-import { SECRET_KEY } from '@config';
-import DB from '@databases';
-import { CreateUserDto } from '@dtos/users.dto';
-import { HttpException } from '@exceptions/HttpException';
-import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
-import { User } from '@interfaces/users.interface';
-import { isEmpty } from '@utils/util';
+import { compare, hash } from 'bcrypt'
+import { SignOptions, verify } from 'jsonwebtoken'
+import { ACCESS_TOKEN_EXPIRES_IN, ACCESS_TOKEN_SECRET, REFRESH_TOKEN_EXPIRES_IN, REFRESH_TOKEN_SECRET, TOKEN_SECRET } from '@config'
+import DB from '@databases'
+import { CreateUserDto } from '@/dtos/users/users.dto'
+import { HttpException } from '@exceptions/HttpException'
+import { isEmpty } from '@utils/util'
+import { LoginUserDto } from '@/dtos/users/userLogin.dto'
+import { CookieOptions } from 'express'
+import TokenService from '@services/utils/token.service'
+import ConfirmationService from '@/services/confirmations.service'
+import { DataStoredInToken } from '@/interfaces/auth.interface'
+import { CreateConfirmationDto } from '@/dtos/confirmations.dto'
+import { Locales } from '@/i18n/i18n-types'
+import EmailService from './utils/email.service'
+import { User } from '@/models/users/users.model'
+import { logger } from '@/utils/logger'
 
 class AuthService {
-  public users = DB.Users;
+  public users = DB.Users
+  public confirmations = DB.Confirmations
+  public tokenService = new TokenService()
+  public confirmationService = new ConfirmationService()
+  public emailService = new EmailService()
 
-  public async signup(userData: CreateUserDto): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
+  public async signUpConfirmation(confirmationCode: string ): Promise<void> {
+    if (isEmpty(confirmationCode)) throw new HttpException(400, "Not a confirmation code")
+    const dataStoredInToken: DataStoredInToken = verify(confirmationCode, TOKEN_SECRET) as DataStoredInToken
 
-    const findUser: User = await this.users.findOne({ where: { email: userData.email } });
-    if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
+    if (isEmpty(dataStoredInToken.id)) throw new HttpException(400, "No user ID in confirmation Code")
+    let findUser: User = await this.users.findByPk( dataStoredInToken.id, { include: [this.confirmations] })
+    if(findUser.Confirmation.code !== confirmationCode) throw new HttpException(409, "Your confirmation code is expired")
+    findUser.Confirmation.isConfirmed=true
+    findUser = await this.confirmationService.updateConfirmation(findUser)
 
-    const hashedPassword = await hash(userData.password, 10);
-    const createUserData: User = await this.users.create({ ...userData, password: hashedPassword });
-
-    return createUserData;
+    if(!findUser.Confirmation.isConfirmed) throw new HttpException(409, "Your account can't be actived")
   }
 
-  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User }> {
-    if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
+  public async signup(userData: CreateUserDto, locale: Locales): Promise<User> {
+    if (isEmpty(userData)) throw new HttpException(400, "You're not userData")
 
-    const findUser: User = await this.users.findOne({ where: { email: userData.email } });
-    if (!findUser) throw new HttpException(409, `You're email ${userData.email} not found`);
+    const findUser: User = await this.users.findOne({ where: { email: userData.email }, include: [this.confirmations] })
+    if (findUser) {
+      if(findUser.Confirmation?.isConfirmed){
+        throw new HttpException(409, `An activated account already exits for this email ${userData.email}.`)
+      } else {
+        const confirmationData = await this.createAndSendSignUpConfirmation(findUser, locale)
+        findUser.Confirmation.code = confirmationData.code
+        await this.confirmationService.updateConfirmation(findUser)
+        return findUser
+      }
+    } else {
+      const hashedPassword = await hash(userData.password, 10)
+      const createUserData: User = await this.users.create({ ...userData, password: hashedPassword })
+      const confirmationData = await this.createAndSendSignUpConfirmation(createUserData, locale)
+      await this.confirmationService.createConfirmation(createUserData, confirmationData)
+      return createUserData
+    }
+  }
 
-    const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
-    if (!isPasswordMatching) throw new HttpException(409, "You're password not matching");
+  public async createAndSendSignUpConfirmation(userData: User, locale: Locales): Promise<CreateConfirmationDto> {
+    const confirmationCode = this.tokenService.createToken(userData, TOKEN_SECRET, {})
+    if(!confirmationCode) throw new HttpException(409, `Can't create confirmation code`)
 
-    const tokenData = this.createToken(findUser);
-    const cookie = this.createCookie(tokenData);
+    const mailId = await this.emailService.sendSignUpConfirmationMail(userData.email, confirmationCode, locale)
+    if(!mailId) throw new HttpException(409, `Can't send the confirmation mail`)
 
-    return { cookie, findUser };
+    const confirmationData: CreateConfirmationDto = {
+        code: confirmationCode,
+        isConfirmed: false
+    }
+    return confirmationData
+  }
+
+  // public async login(userData: LoginUserDto): Promise<{ token: string, refreshToken: string, xsrfToken: string, optionsTokenCookie: CookieOptions, optionsRefreshTokenCookie: CookieOptions, findUser: User }> {
+  public async login(userData: LoginUserDto): Promise<{ token: string, xsrfToken: string, optionsTokenCookie: CookieOptions, findUser: User }> {
+    if (isEmpty(userData)) throw new HttpException(400, "You're not userData")
+
+    const findUser: User = await this.users.findOne({ where: { email: userData.email }, include: [this.confirmations] } )
+    if (!findUser) throw new HttpException(409, `Your email ${userData.email} not found`)
+    if (!findUser.Confirmation.isConfirmed) throw new HttpException(409, `Your account is not confirmed, please check your email`)
+
+    const isPasswordMatching: boolean = await compare(userData.password, findUser.password)
+    if (!isPasswordMatching) throw new HttpException(409, "You're password not matching")
+
+    const xsrfToken = this.tokenService.createXSRFToken()
+    const optionsToken: SignOptions = {expiresIn: parseInt(ACCESS_TOKEN_EXPIRES_IN, 10)}
+    const token: string = this.tokenService.createToken(findUser, ACCESS_TOKEN_SECRET, optionsToken, xsrfToken)
+    // const optionsRefreshToken: SignOptions = {expiresIn: parseInt(REFRESH_TOKEN_EXPIRES_IN, 10)}
+    // const refreshToken: string = this.createToken(findUser, REFRESH_TOKEN_SECRET, optionsRefreshToken)
+    const optionsTokenCookie = {
+      httpOnly: true,
+      secure: true,
+      maxAge: parseInt(ACCESS_TOKEN_EXPIRES_IN, 10),
+      path: '*'
+    }
+    // const optionsRefreshTokenCookie = {
+    //   httpOnly: true,
+    //   secure: true,
+    //   maxAge: parseInt(REFRESH_TOKEN_EXPIRES_IN, 10),
+    //   path: '/token'
+    // }
+
+    // return { token, refreshToken, xsrfToken, optionsTokenCookie, optionsRefreshTokenCookie, findUser }
+    return { token, xsrfToken, optionsTokenCookie, findUser }
   }
 
   public async logout(userData: User): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
+    if (isEmpty(userData)) throw new HttpException(400, "You're not userData")
 
-    const findUser: User = await this.users.findOne({ where: { email: userData.email, password: userData.password } });
-    if (!findUser) throw new HttpException(409, "You're not user");
+    const findUser: User = await this.users.findOne({ where: { email: userData.email, password: userData.password } })
+    if (!findUser) throw new HttpException(409, "You're not user")
 
-    return findUser;
+    return findUser
   }
 
-  public createToken(user: User): TokenData {
-    const dataStoredInToken: DataStoredInToken = { id: user.id };
-    const secretKey: string = SECRET_KEY;
-    const expiresIn: number = 60 * 60;
-
-    return { expiresIn, token: sign(dataStoredInToken, secretKey, { expiresIn }) };
-  }
-
-  public createCookie(tokenData: TokenData): string {
-    return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn};`;
-  }
 }
 
-export default AuthService;
+export default AuthService

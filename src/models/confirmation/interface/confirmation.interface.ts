@@ -5,5 +5,8 @@ export interface IConfirmation extends Model {
   code: string
   isConfirmed: boolean
 
+  createdAt: Date
+  updatedAt: Date
+
   User?: NonAttribute<IUser>
 }

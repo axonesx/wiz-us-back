@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { CreateUserDto } from '@/dtos/users/users.dto'
-import { RequestWithUser } from '@interfaces/auth.interface'
+import { RequestWithUser, UserWithStatus } from '@interfaces/auth.interface'
 import AuthService from '@services/auth.service'
 import { LoginUserDto } from '@/dtos/users/userLogin.dto'
 import { I18n } from '@/i18n'
@@ -31,7 +31,7 @@ class AuthController {
       logger.info(`Start >> signUp >> User ${req.body.email}`)
       const userData: CreateUserDto = req.body
       const locale = I18n.getPreferredLocale(req)
-      const signUpUserData: User = await this.authService.signup(userData, locale)
+      const signUpUserData: UserWithStatus = await this.authService.signup(userData, locale)
       res.status(201).json({ data: signUpUserData, message: 'signup' })
       logger.info(`End >> signUp >> User ${req.body.email}`)
     } catch (error) {
@@ -49,7 +49,7 @@ class AuthController {
 
       res.cookie('access-token', token, optionsTokenCookie)
       // res.cookie('refresh-token', refreshToken, optionsRefreshTokenCookie)
-      const maxAge = optionsTokenCookie.maxAge 
+      const maxAge = optionsTokenCookie.maxAge
       res.status(200).json({
         data: {
           xsrfToken,

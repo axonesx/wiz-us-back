@@ -11,6 +11,10 @@ export interface IUser extends Model {
   birthday: Date
   Confirmation?: NonAttribute<IConfirmation>
 
+ 
+  createdAt: Date
+  updatedAt: Date
+
   getConfirmation: HasOneGetAssociationMixin<Confirmation>
   setConfirmation: HasOneSetAssociationMixin<Confirmation, number>
   createConfirmation: HasOneCreateAssociationMixin<Confirmation>

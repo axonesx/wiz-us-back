@@ -9,9 +9,9 @@ export interface IUser extends Model {
   firstName: string
   lastName: string
   birthday: Date
+  description?: string
   Confirmation?: NonAttribute<IConfirmation>
 
- 
   createdAt: Date
   updatedAt: Date
 

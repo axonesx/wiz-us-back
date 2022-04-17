@@ -3,7 +3,6 @@ import DB from '@databases'
 import { CreateUserDto } from '@/dtos/users/users.dto'
 import { HttpException } from '@exceptions/HttpException'
 import { isEmpty } from '@utils/util'
-import { User } from '@/models/users/users.model'
 import ConfirmationService from '@/services/confirmations.service'
 import { IUser } from '@/models/users/interface/users.interface'
 
@@ -13,15 +12,24 @@ class UserService {
   public confirmationService = new ConfirmationService()
 
   public async findAllUser(): Promise<IUser[]> {
-    const allUser: IUser[] = await this.users.findAll()
+    const allUser: IUser[] = await this.users.findAll({include: [this.confirmations]})
     return allUser
   }
 
   public async findUserById(userId: number): Promise<IUser> {
     if (isEmpty(userId)) throw new HttpException(400, "Not a user ID")
 
-    const findUser: IUser = await this.users.findByPk(userId)
+    const findUser: IUser = await this.users.findByPk(userId, {include: [this.confirmations]})
     if (!findUser) throw new HttpException(409, `This user ${userId} is not an existing user`)
+
+    return findUser
+  }
+
+  public async findUserByEmail(userEmail: string): Promise<IUser> {
+    if (isEmpty(userEmail)) throw new HttpException(400, "Not a userEmail")
+
+    const findUser: IUser = await this.users.findOne({ where: { email: userEmail }, include: [this.confirmations] })
+    if (!findUser) throw new HttpException(409, `This email ${userEmail} does not exist`)
 
     return findUser
   }

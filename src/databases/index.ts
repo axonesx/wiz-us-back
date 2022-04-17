@@ -36,7 +36,7 @@ try {
   sequelize.authenticate()
   logger.info(`Connected to Database ${DB_HOST}`)
 } catch (error) {
-  console.error(`Unable to connect to the Database ${DB_HOST} :`, error)
+  logger.error(`Unable to connect to the Database ${DB_HOST} :`, error)
 }
 
 const DB = {

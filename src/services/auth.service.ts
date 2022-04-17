@@ -61,10 +61,16 @@ class AuthService {
 
   public async createAndSendSignUpConfirmation(userData: IUser, locale: Locales): Promise<CreateConfirmationDto> {
     const confirmationCode = this.tokenService.createToken(userData, TOKEN_SECRET, {})
-    if(!confirmationCode) throw new HttpException(409, `Can't create confirmation code`)
+    if(!confirmationCode) {
+      await this.users.destroy({ where: { id: userData.id } })
+      throw new HttpException(409, `Can't create confirmation code`)
+    }
 
     const mailId = await this.emailService.sendSignUpConfirmationMail(userData.email, confirmationCode, locale)
-    if(!mailId) throw new HttpException(409, `Can't send the confirmation mail`)
+    if(!mailId) {
+      await this.users.destroy({ where: { id: userData.id } })
+      throw new HttpException(409, `Can't send the confirmation mail`)
+    }
 
     const confirmationData: CreateConfirmationDto = {
         code: confirmationCode,

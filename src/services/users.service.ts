@@ -5,6 +5,7 @@ import { HttpException } from '@exceptions/HttpException'
 import { isEmpty } from '@utils/util'
 import ConfirmationService from '@/services/confirmations.service'
 import { IUser } from '@/models/users/interface/users.interface'
+import { UpdateUserDto } from '@/dtos/users/userUpdate.dto'
 
 class UserService {
   public users = DB.Users
@@ -44,15 +45,15 @@ class UserService {
     return createUserData
   }
 
-  public async updateUser(userId: number, userData: CreateUserDto): Promise<IUser> {
+  public async updateUser(userId: number, userData: UpdateUserDto): Promise<IUser> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData")
 
     const findUser: IUser = await this.users.findByPk(userId)
     if (!findUser) throw new HttpException(409, "You're not user")
 
-    const hashedPassword = await hash(userData.password, 10)
-    await this.users.update({ ...userData, password: hashedPassword }, { where: { id: userId } })
-    let updateUser: IUser = await this.users.findByPk(userId)
+    if (userData.password) userData.password = await hash(userData.password, 10)
+    await this.users.update({ ...userData }, { where: { id: userId } })
+    const updateUser: IUser = await this.users.findByPk(userId)
 
     return updateUser
   }

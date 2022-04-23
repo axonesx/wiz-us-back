@@ -12,12 +12,12 @@ const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFun
     const { cookies, headers } = req
 
     if (!cookies || !cookies['access-token']) {
-      return next(new HttpException(404, 'Authentication token missing'))
+      return next(new HttpException(401, 'Authentication token missing'))
     }
     const accessToken: string = cookies['access-token']
 
     if (!headers || !headers['x-xsrf-token']) {
-      return next(new HttpException(404, 'Missing XSRF token in headers'))
+      return next(new HttpException(401, 'Missing XSRF token in headers'))
     }
     const xsrfToken = headers['x-xsrf-token']
 

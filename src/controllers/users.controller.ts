@@ -3,6 +3,7 @@ import { CreateUserDto } from '@/dtos/users/users.dto'
 import userService from '@services/users.service'
 import { User } from '@/models/users/users.model'
 import { logger } from '@/utils/logger'
+import { UpdateUserDto } from '@/dtos/users/userUpdate.dto'
 
 class UsersController {
 
@@ -53,7 +54,7 @@ class UsersController {
     try {
       logger.info(`Start >> updateUser >> userId ${req.params.id}`)
       const userId = Number(req.params.id)
-      const userData: CreateUserDto = req.body
+      const userData: UpdateUserDto = req.body
       const updateUserData: User = await this.userService.updateUser(userId, userData)
 
       res.status(200).json({ data: updateUserData, message: 'updated' })

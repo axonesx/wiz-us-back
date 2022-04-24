@@ -22,7 +22,6 @@ class AuthController {
     } catch (error) {
       logger.error(`Error >> signUpConfirmation code ${req.params.code}`)
       res.status(401).redirect(`${FRONT_URL}/`)
-      // next(error)
     }
   }
 

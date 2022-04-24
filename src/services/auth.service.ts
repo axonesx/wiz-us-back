@@ -85,7 +85,7 @@ class AuthService {
 
     const findUser: User = await this.users.findOne({ where: { email: userData.email }, include: [this.confirmations] } )
     if (!findUser) throw new HttpException(409, `Your email ${userData.email} not found`)
-    if (!findUser.Confirmation.isConfirmed) throw new HttpException(409, `Your account is not confirmed, please check your email`)
+    if (!findUser.Confirmation.isConfirmed) throw new HttpException(409, `signUp.emailNotConfirmed`)
 
     const isPasswordMatching: boolean = await compare(userData.password, findUser.password)
     if (!isPasswordMatching) throw new HttpException(409, "You're password not matching")

@@ -2,8 +2,9 @@ import { NextFunction, Response } from 'express'
 import { verify } from 'jsonwebtoken'
 import { ACCESS_TOKEN_SECRET } from '@config'
 import { HttpException } from '@exceptions/HttpException'
-import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface'
+import { DataStoredInToken } from '@interfaces/auth.interface'
 import UserService from '@/services/users.service'
+import { RequestWithUser } from '@/interfaces/request.interface'
 
 const userService = new UserService()
 

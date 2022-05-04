@@ -17,6 +17,7 @@ InferCreationAttributes<User, { omit: 'Confirmation' }>
   public lastName: string
   public birthday: Date
   public description?: string
+  public avatarPath?: String
 
   public readonly createdAt!: Date
   public readonly updatedAt!: Date
@@ -67,6 +68,18 @@ export default function (sequelize: Sequelize): typeof User {
       description: {
         allowNull: true,
         type: DataTypes.STRING(1000),
+      },
+      avatarPath: {
+        allowNull: true,
+        type: DataTypes.STRING(255),
+      },
+      createdAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
+      },
+      updatedAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
       },
     },
     {

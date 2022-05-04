@@ -32,6 +32,7 @@ class App {
     this.initializeRoutes(routes)
     this.initializeSwagger()
     this.initializeErrorHandling()
+    this.initializeStatic()
   }
 
   public listen() {
@@ -86,6 +87,10 @@ class App {
 
     const specs = swaggerJSDoc(options)
     this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
+  }
+
+  private initializeStatic() {
+    this.app.use(express.static('public'))
   }
 
   private initializeErrorHandling() {

@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from 'express'
 import { CreateUserDto } from '@/dtos/users/users.dto'
-import { RequestWithUser, UserWithStatus } from '@interfaces/auth.interface'
+import { UserWithStatus } from '@interfaces/auth.interface'
 import AuthService from '@services/auth.service'
 import { LoginUserDto } from '@/dtos/users/userLogin.dto'
 import { I18n } from '@/i18n'
 import { User } from '@/models/users/users.model'
 import { FRONT_URL } from '@/config'
 import { logger } from '@/utils/logger'
+import { RequestWithUser } from '@/interfaces/request.interface'
 
 class AuthController {
   public authService = new AuthService()

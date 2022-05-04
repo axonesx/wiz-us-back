@@ -5,7 +5,7 @@ import { Routes } from '@interfaces/routes.interface'
 import validationMiddleware from '@middlewares/validation.middleware'
 import { UpdateUserDto } from '@/dtos/users/userUpdate.dto'
 import authMiddleware from '@/middlewares/auth.middleware'
-import filesFormMiddleWare from '@/middlewares/filesForm.middleware'
+import avatarFormMiddleWare from '@/middlewares/avatarForm.middleware'
 
 class UsersRoute implements Routes {
   public path = '/users'
@@ -21,10 +21,11 @@ class UsersRoute implements Routes {
     this.router.get(`${this.path}/all`, this.usersController.getUsers)
     this.router.delete(`${this.path}/:id(\\d+)`, this.usersController.deleteUser)
     this.router.get(`${this.path}/:id(\\d+)`, this.usersController.getUserById)
-    
+
     this.router.post(`${this.path}`, validationMiddleware(CreateUserDto, 'body'), this.usersController.createUser)
     this.router.put(`${this.path}/:id(\\d+)`, validationMiddleware(UpdateUserDto, 'body'), this.usersController.updateUser)
-    this.router.post(`${this.path}/:id/upload`, filesFormMiddleWare)
+    this.router.post(`${this.path}/:id/uploadAvatar`, avatarFormMiddleWare, this.usersController.uploadAvatar)
+    this.router.delete(`${this.path}/:id/deleteAvatar`, this.usersController.deleteAvatar)
   }
 }
 

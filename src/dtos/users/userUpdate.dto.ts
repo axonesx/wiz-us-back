@@ -24,6 +24,10 @@ export class UpdateUserDto {
 
   @ValidateIf(UpdateUserDto => UpdateUserDto.description)
   @IsString()
-  public description: string
+  public description?: string
+
+  @ValidateIf(UpdateUserDto => UpdateUserDto.avatarPath)
+  @IsString()
+  public avatarPath?: string
 
 }

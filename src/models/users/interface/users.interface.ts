@@ -10,6 +10,7 @@ export interface IUser extends Model {
   lastName: string
   birthday: Date
   description?: string
+  avatarPath?: String
   Confirmation?: NonAttribute<IConfirmation>
 
   createdAt: Date

@@ -21,8 +21,4 @@ interface TokenData {
   expiresIn: number
 }
 
-interface RequestWithUser extends Request {
-  user: User
-}
-
-export { RequestWithUser, TokenData, DataStoredInToken, UserWithStatus }
+export { TokenData, DataStoredInToken, UserWithStatus }

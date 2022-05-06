@@ -4,6 +4,10 @@ import userService from '@services/users.service'
 import { User } from '@/models/users/users.model'
 import { logger } from '@/utils/logger'
 import { UpdateUserDto } from '@/dtos/users/userUpdate.dto'
+import { RequestWithFormidable } from '@/interfaces/request.interface'
+import * as fs from 'fs'
+import path from 'path'
+import { createFilePath, deleteFilesFromDirUnlessOne } from '@/services/utils/file.service'
 
 class UsersController {
 
@@ -75,6 +79,43 @@ class UsersController {
       logger.info(`End >> deleteUser >> userId ${req.params.id}`)
     } catch (error) {
       logger.error(`Error >> deleteUser >> userId ${req.params.id}`)
+      next(error)
+    }
+  }
+
+  public uploadAvatar = async (req: RequestWithFormidable, res: Response, next: NextFunction) => {
+    try {
+      logger.info(`Start >> uploadAvatare >> userId ${req.params.id}`)
+      const userId = Number(req.params.id)
+      const fields=req.fields
+      const files=req.files
+      const avatarPath = req.filesName[0]
+      const userData: UpdateUserDto = { ...req.user, avatarPath }
+      const updateUserData: User = await this.userService.updateUser(userId, userData)
+      deleteFilesFromDirUnlessOne(req.filesPath[0])
+
+      res.status(200).json({ data: updateUserData, fields, files, message: 'Avatar >> updated' })
+      logger.info(`End >> uploadAvatare >> userId ${req.params.id}`)
+    } catch (error) {
+      logger.error(`Error >> uploadAvatare >> userId ${req.params.id}`)
+      next(error)
+    }
+  }
+
+  public deleteAvatar = async (req: RequestWithFormidable, res: Response, next: NextFunction) => {
+    try {
+      logger.info(`Start >> deleteAvatare >> userId ${req.params.id}`)
+      const dirTodelete = createFilePath(req.params.id)
+      const userId = Number(req.params.id)
+      const avatarPath = null
+      const userData: UpdateUserDto = { ...req.user, avatarPath }
+      const updateUserData: User = await this.userService.updateUser(userId, userData)
+      deleteFilesFromDirUnlessOne(`${dirTodelete}/*`)
+
+      res.status(200).json({ data: updateUserData, message: 'Avatar >> deleted' })
+      logger.info(`End >> deleteAvatare >> userId ${req.params.id}`)
+    } catch (error) {
+      logger.error(`Error >> deleteAvatare >> userId ${req.params.id}`)
       next(error)
     }
   }

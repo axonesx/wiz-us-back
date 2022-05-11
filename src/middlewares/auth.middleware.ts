@@ -13,7 +13,7 @@ const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFun
     const { cookies, headers } = req
 
     if (!cookies || !cookies['access-token']) {
-      return next(new HttpException(401, 'Authentication token missing'))
+      return next(new HttpException(401, 'auth.token.missing'))
     }
     const accessToken: string = cookies['access-token']
 

@@ -2,6 +2,7 @@ import { HttpException } from '@exceptions/HttpException'
 import { NextFunction, Response } from 'express'
 import { RequestWithFormidable } from '@/interfaces/request.interface'
 import { formAvatar } from '@/services/utils/file.service'
+import { logger } from '@/utils/logger'
 
 const avatarFormMiddleWare = ( req: RequestWithFormidable, res: Response, next: NextFunction) => {
   const filesName: string[] = []
@@ -13,7 +14,8 @@ const avatarFormMiddleWare = ( req: RequestWithFormidable, res: Response, next: 
   })
   form.parse(req, (err, fields, files) => {
     if (err) {
-      next(new HttpException(400, err.message))
+      logger.error(err.message)
+      next(new HttpException(400, 'formFile.invalid'))
     }
     req.fields = fields
     req.files = files

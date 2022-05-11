@@ -11,18 +11,18 @@ class ConfirmationService {
   public users = DB.Users
 
   public async getConfirmation(userData: IUser): Promise<IConfirmation> {
-    if (isEmpty(userData)) throw new HttpException(400, "You're not a User")
+    if (isEmpty(userData)) throw new HttpException(400, 'account.notUser')
     const confirmationData: Confirmation = await userData.getConfirmation()
     return confirmationData
   }
 
   public async createConfirmation(userData: IUser, confirmationData: CreateConfirmationDto): Promise<void> {
-    if (isEmpty(confirmationData)) throw new HttpException(400, "You're not confirmationData")
+    if (isEmpty(confirmationData)) throw new HttpException(400, 'account.notUserConfirmation')
     const test = await userData.createConfirmation({...confirmationData})
   }
 
   public async updateConfirmation(userData: IUser): Promise<IUser> {
-    if (isEmpty(userData.Confirmation)) throw new HttpException(400, "You're not ConfirmationData")
+    if (isEmpty(userData.Confirmation)) throw new HttpException(400, 'account.notUserConfirmation')
     if (isEmpty(userData)) throw new HttpException(400, "You're not a user")
     await userData.Confirmation.save()
     return userData

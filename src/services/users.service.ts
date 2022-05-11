@@ -18,38 +18,38 @@ class UserService {
   }
 
   public async findUserById(userId: number): Promise<IUser> {
-    if (isEmpty(userId)) throw new HttpException(400, "Not a user ID")
+    if (isEmpty(userId)) throw new HttpException(400, 'account.notUser')
 
     const findUser: IUser = await this.users.findByPk(userId, {include: [this.confirmations]})
-    if (!findUser) throw new HttpException(409, `This user ${userId} is not an existing user`)
+    if (!findUser) throw new HttpException(409, 'account.notUserExisting')
 
     return findUser
   }
 
   public async findUserByEmail(userEmail: string): Promise<IUser> {
-    if (isEmpty(userEmail)) throw new HttpException(400, "Not a userEmail")
+    if (isEmpty(userEmail)) throw new HttpException(400,  'account.notUserEmail')
 
     const findUser: IUser = await this.users.findOne({ where: { email: userEmail }, include: [this.confirmations] })
-    if (!findUser) throw new HttpException(409, `This email ${userEmail} does not exist`)
+    if (!findUser) throw new HttpException(409, 'account.notUserExisting')
 
     return findUser
   }
 
   public async createUser(userData: CreateUserDto): Promise<IUser> {
-    if (isEmpty(userData)) throw new HttpException(400, "You're not userData")
+    if (isEmpty(userData)) throw new HttpException(400, 'account.notUser')
 
     const findUser: IUser = await this.users.findOne({ where: { email: userData.email } })
-    if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`)
+    if (findUser) throw new HttpException(409, 'account.emailAllreadyExist')
     const hashedPassword = await hash(userData.password, 10)
     const createUserData: IUser = await this.users.create({ ...userData, password: hashedPassword})
     return createUserData
   }
 
   public async updateUser(userId: number, userData: UpdateUserDto): Promise<IUser> {
-    if (isEmpty(userData)) throw new HttpException(400, "You're not userData")
+    if (isEmpty(userData)) throw new HttpException(400, 'account.notUser')
 
     const findUser: IUser = await this.users.findByPk(userId)
-    if (!findUser) throw new HttpException(409, "You're not user")
+    if (!findUser) throw new HttpException(409, 'account.notUser')
 
     if (userData.password) userData.password = await hash(userData.password, 10)
     await this.users.update({ ...userData }, { where: { id: userId } })
@@ -59,10 +59,10 @@ class UserService {
   }
 
   public async deleteUser(userId: number): Promise<IUser> {
-    if (isEmpty(userId)) throw new HttpException(400, "Not a user ID")
+    if (isEmpty(userId)) throw new HttpException(400, 'account.notUser')
 
     const findUser: IUser = await this.users.findByPk(userId)
-    if (!findUser) throw new HttpException(409, "You're not user")
+    if (!findUser) throw new HttpException(409, 'account.notUser')
 
     await this.users.destroy({ where: { id: userId } })
 

@@ -25,25 +25,25 @@ class AuthService {
   public emailService = new EmailService()
 
   public async signUpConfirmation(confirmationCode: string ): Promise<void> {
-    if (isEmpty(confirmationCode)) throw new HttpException(400, "Not a confirmation code")
+    if (isEmpty(confirmationCode)) throw new HttpException(400, 'account.notConfirmed')
     const dataStoredInToken: DataStoredInToken = verify(confirmationCode, TOKEN_SECRET) as DataStoredInToken
 
-    if (isEmpty(dataStoredInToken.id)) throw new HttpException(400, "No user ID in confirmation Code")
+    if (isEmpty(dataStoredInToken.id)) throw new HttpException(400, 'account.noIdInConfirmationCode')
     let findUser: IUser = await this.users.findByPk( dataStoredInToken.id, { include: [this.confirmations] })
-    if(findUser.Confirmation.code !== confirmationCode) throw new HttpException(409, "Your confirmation code is expired")
+    if(findUser.Confirmation.code !== confirmationCode) throw new HttpException(409, "account.confirmationCodeExpired")
     findUser.Confirmation.isConfirmed=true
     findUser = await this.confirmationService.updateConfirmation(findUser)
 
-    if(!findUser.Confirmation.isConfirmed) throw new HttpException(409, "Your account can't be actived")
+    if(!findUser.Confirmation.isConfirmed) throw new HttpException(409, 'accont.activationError')
   }
 
   public async signup(userData: CreateUserDto, locale: Locales): Promise<UserWithStatus> {
-    if (isEmpty(userData)) throw new HttpException(400, "You're not userData")
+    if (isEmpty(userData)) throw new HttpException(400, 'account.notUser')
 
     const findUser: IUser = await this.users.findOne({ where: { email: userData.email }, include: [this.confirmations] })
     if (findUser) {
       if(findUser.Confirmation?.isConfirmed){
-        throw new HttpException(409, `An activated account already exits for this email ${userData.email}.`)
+        throw new HttpException(409, 'account.emailAllreadyExist')
       } else {
         const confirmationData = await this.createAndSendSignUpConfirmation(findUser, locale)
         findUser.Confirmation.code = confirmationData.code
@@ -63,13 +63,13 @@ class AuthService {
     const confirmationCode = this.tokenService.createToken(userData, TOKEN_SECRET, {})
     if(!confirmationCode) {
       await this.users.destroy({ where: { id: userData.id } })
-      throw new HttpException(409, `Can't create confirmation code`)
+      throw new HttpException(409, 'account.creationActivationCodeError')
     }
 
     const mailId = await this.emailService.sendSignUpConfirmationMail(userData.email, confirmationCode, locale)
     if(!mailId) {
       await this.users.destroy({ where: { id: userData.id } })
-      throw new HttpException(409, `Can't send the confirmation mail`)
+      throw new HttpException(409, 'account.sendingConfirmationEmailError')
     }
 
     const confirmationData: CreateConfirmationDto = {
@@ -81,14 +81,14 @@ class AuthService {
 
   // public async login(userData: LoginUserDto): Promise<{ token: string, refreshToken: string, xsrfToken: string, optionsTokenCookie: CookieOptions, optionsRefreshTokenCookie: CookieOptions, findUser: User }> {
   public async login(userData: LoginUserDto): Promise<{ token: string, xsrfToken: string, optionsTokenCookie: CookieOptions, findUser: User }> {
-    if (isEmpty(userData)) throw new HttpException(400, "You're not userData")
+    if (isEmpty(userData)) throw new HttpException(400, 'account.notUser')
 
     const findUser: User = await this.users.findOne({ where: { email: userData.email }, include: [this.confirmations] } )
-    if (!findUser) throw new HttpException(409, `Your email ${userData.email} not found`)
-    if (!findUser.Confirmation.isConfirmed) throw new HttpException(409, `signUp.emailNotConfirmed`)
+    if (!findUser) throw new HttpException(409, 'account.mailNotFound')
+    if (!findUser.Confirmation.isConfirmed) throw new HttpException(409, `account.emailNotConfirmed`)
 
     const isPasswordMatching: boolean = await compare(userData.password, findUser.password)
-    if (!isPasswordMatching) throw new HttpException(409, "You're password not matching")
+    if (!isPasswordMatching) throw new HttpException(409, `account.passwordNotMatching`)
 
     const xsrfToken = this.tokenService.createXSRFToken()
     const optionsToken: SignOptions = {expiresIn: parseInt(ACCESS_TOKEN_EXPIRES_IN, 10)}
@@ -113,10 +113,10 @@ class AuthService {
   }
 
   public async logout(userData: User): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, "You're not userData")
+    if (isEmpty(userData)) throw new HttpException(400, 'account.notUser')
 
     const findUser: User = await this.users.findOne({ where: { email: userData.email, password: userData.password } })
-    if (!findUser) throw new HttpException(409, "You're not user")
+    if (!findUser) throw new HttpException(409, 'account.notUser')
 
     return findUser
   }

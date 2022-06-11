@@ -1,6 +1,4 @@
 import { IUser } from '@/models/users/interface/users.interface'
-import { User } from '@/models/users/users.model'
-import { Request } from 'express'
 import { JwtPayload } from 'jsonwebtoken'
 
 interface UserWithStatus {

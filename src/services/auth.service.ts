@@ -16,6 +16,7 @@ import EmailService from './utils/email.service'
 import { User } from '@/models/users/users.model'
 import { logger } from '@/utils/logger'
 import { IUser } from '@/models/users/interface/users.interface'
+import UserService from './users.service'
 
 class AuthService {
   public users = DB.Users
@@ -23,6 +24,7 @@ class AuthService {
   public tokenService = new TokenService()
   public confirmationService = new ConfirmationService()
   public emailService = new EmailService()
+  public userService = new UserService()
 
   public async signUpConfirmation(confirmationCode: string ): Promise<void> {
     if (isEmpty(confirmationCode)) throw new HttpException(400, 'account.notConfirmed')
@@ -79,8 +81,7 @@ class AuthService {
     return confirmationData
   }
 
-  // public async login(userData: LoginUserDto): Promise<{ token: string, refreshToken: string, xsrfToken: string, optionsTokenCookie: CookieOptions, optionsRefreshTokenCookie: CookieOptions, findUser: User }> {
-  public async login(userData: LoginUserDto): Promise<{ token: string, xsrfToken: string, optionsTokenCookie: CookieOptions, findUser: User }> {
+  public async login(userData: LoginUserDto): Promise<{ token: string, refreshToken: string, xsrfToken: string, optionsTokenCookie: CookieOptions, optionsRefreshTokenCookie: CookieOptions, findUser: User }> {
     if (isEmpty(userData)) throw new HttpException(400, 'account.notUser')
 
     const findUser: User = await this.users.findOne({ where: { email: userData.email }, include: [this.confirmations] } )
@@ -93,32 +94,58 @@ class AuthService {
     const xsrfToken = this.tokenService.createXSRFToken()
     const optionsToken: SignOptions = {expiresIn: parseInt(ACCESS_TOKEN_EXPIRES_IN, 10)}
     const token: string = this.tokenService.createToken(findUser, ACCESS_TOKEN_SECRET, optionsToken, xsrfToken)
-    // const optionsRefreshToken: SignOptions = {expiresIn: parseInt(REFRESH_TOKEN_EXPIRES_IN, 10)}
-    // const refreshToken: string = this.createToken(findUser, REFRESH_TOKEN_SECRET, optionsRefreshToken)
+    const optionsRefreshToken: SignOptions = {expiresIn: parseInt(REFRESH_TOKEN_EXPIRES_IN, 10)}
+    const refreshToken: string = this.tokenService.createToken(findUser, REFRESH_TOKEN_SECRET, optionsRefreshToken)
     const optionsTokenCookie = {
       httpOnly: true,
       secure: true,
       maxAge: parseInt(ACCESS_TOKEN_EXPIRES_IN, 10),
       path: '*'
     }
-    // const optionsRefreshTokenCookie = {
-    //   httpOnly: true,
-    //   secure: true,
-    //   maxAge: parseInt(REFRESH_TOKEN_EXPIRES_IN, 10),
-    //   path: '/token'
-    // }
+    const optionsRefreshTokenCookie = {
+      httpOnly: true,
+      secure: true,
+      maxAge: parseInt(REFRESH_TOKEN_EXPIRES_IN, 10),
+      path: '*'
+      // path: '/refresh-user-token'
+    }
 
-    // return { token, refreshToken, xsrfToken, optionsTokenCookie, optionsRefreshTokenCookie, findUser }
-    return { token, xsrfToken, optionsTokenCookie, findUser }
+    return { token, refreshToken, xsrfToken, optionsTokenCookie, optionsRefreshTokenCookie, findUser }
   }
 
-  public async logout(userData: User): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, 'account.notUser')
+  // public async logout(userData: User): Promise<User> {
+  //   if (isEmpty(userData)) throw new HttpException(400, 'account.notUser')
 
-    const findUser: User = await this.users.findOne({ where: { email: userData.email, password: userData.password } })
-    if (!findUser) throw new HttpException(409, 'account.notUser')
+  //   const findUser: User = await this.users.findOne({ where: { email: userData.email, password: userData.password } })
+  //   if (!findUser) throw new HttpException(409, 'account.notUser')
 
-    return findUser
+  //   return findUser
+  // }
+
+  public async reloadToken(oldRefreshToken: string): Promise<{ token: string, refreshToken: string, xsrfToken: string, optionsTokenCookie: CookieOptions, optionsRefreshTokenCookie: CookieOptions }> {
+    const decodedOldRefreshToken = verify(oldRefreshToken, REFRESH_TOKEN_SECRET) as DataStoredInToken
+    const userId = decodedOldRefreshToken.id
+    const findUser = await this.userService.findUserById(userId)
+    if (!findUser)  throw new HttpException(409, 'account.notUser')
+    const xsrfToken = this.tokenService.createXSRFToken()
+    const optionsToken: SignOptions = {expiresIn: parseInt(ACCESS_TOKEN_EXPIRES_IN, 10)}
+    const token: string = this.tokenService.createToken(findUser, ACCESS_TOKEN_SECRET, optionsToken, xsrfToken)
+    const optionsRefreshToken: SignOptions = {expiresIn: parseInt(REFRESH_TOKEN_EXPIRES_IN, 10)}
+    const refreshToken: string = this.tokenService.createToken(findUser, REFRESH_TOKEN_SECRET, optionsRefreshToken)
+    const optionsTokenCookie = {
+      httpOnly: true,
+      secure: true,
+      maxAge: parseInt(ACCESS_TOKEN_EXPIRES_IN, 10),
+      path: '*'
+    }
+    const optionsRefreshTokenCookie = {
+      httpOnly: true,
+      secure: true,
+      maxAge: parseInt(REFRESH_TOKEN_EXPIRES_IN, 10),
+      path: '*'
+    }
+
+    return { token, refreshToken, xsrfToken, optionsTokenCookie, optionsRefreshTokenCookie }
   }
 
 }

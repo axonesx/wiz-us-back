@@ -44,16 +44,17 @@ class AuthController {
     try {
       logger.info(`Start >> logIn User ${req.body.email}`)
       const userData: LoginUserDto = req.body
-      // const { token, refreshToken, xsrfToken, optionsTokenCookie, optionsRefreshTokenCookie, findUser } = await this.authService.login(userData)
-      const { token, xsrfToken, optionsTokenCookie, findUser } = await this.authService.login(userData)
+      const { token, refreshToken, xsrfToken, optionsTokenCookie, optionsRefreshTokenCookie, findUser } = await this.authService.login(userData)
 
       res.cookie('access-token', token, optionsTokenCookie)
-      // res.cookie('refresh-token', refreshToken, optionsRefreshTokenCookie)
       const maxAge = optionsTokenCookie.maxAge
+      const refreshMaxAge = optionsRefreshTokenCookie.maxAge
       res.status(200).json({
         data: {
           xsrfToken,
+          refreshToken,
           maxAge,
+          refreshMaxAge,
           findUser
         },
         message: 'login'
@@ -67,15 +68,38 @@ class AuthController {
 
   public logOut = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      logger.info(`Start >> logOut User ${req.user.id}`)
-      const userData: User = req.user
-      const logOutUserData: User = await this.authService.logout(userData)
+      logger.info(`Start >> logOut User`)
 
       res.cookie('access-token', '', {maxAge: 0})
-      res.status(200).json({ data: logOutUserData, message: 'logout' })
-      logger.info(`End >> logOut User ${req.user.id}`)
+      res.cookie('refresh-token', '', {maxAge: 0})
+      res.status(200).json({ message: 'logout' })
+      logger.info(`End >> logOut User`)
     } catch (error) {
-      logger.error(`Error >> logOut User ${req.user.id}`)
+      logger.error(`Error >> logOut User`)
+      next(error)
+    }
+  }
+
+  public reloadToken = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      logger.info(`Start >> reloadToken`)
+      const oldRefreshToken = req.body
+      const { token, refreshToken, xsrfToken, optionsTokenCookie, optionsRefreshTokenCookie } = await this.authService.reloadToken(oldRefreshToken.token)
+      res.cookie('access-token', token, optionsTokenCookie)
+      const maxAge = optionsTokenCookie.maxAge
+      const refreshMaxAge = optionsRefreshTokenCookie.maxAge
+      res.status(200).json({
+        data: {
+          xsrfToken,
+          refreshToken,
+          maxAge,
+          refreshMaxAge
+        },
+        message: 'reloadToken'
+      })
+      logger.info(`End >> reloadToken`)
+    } catch (error) {
+      logger.error(`Error >> reloadToken`)
       next(error)
     }
   }

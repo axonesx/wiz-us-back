@@ -28,6 +28,14 @@ export default function (sequelize: Sequelize): typeof Confirmation {
         allowNull: false,
         type: DataTypes.BOOLEAN,
       },
+      createdAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
+      },
+      updatedAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
+      },
     },
     {
       tableName: 'confirmations',

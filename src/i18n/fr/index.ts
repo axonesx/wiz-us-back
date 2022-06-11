@@ -3,7 +3,7 @@ import type { Translation } from '../i18n-types'
 const fr: Translation = {
 
 	SET_CONFIRMATION_MAIL_FROM: `"L'équipe Wizz-Us" <{MAIL_USER}>"`,
-	SET_CONFIRMATION_MAIL_SUBJECT: `Please confirm your account`,
+	SET_CONFIRMATION_MAIL_SUBJECT: `Merci de confirmer votre compte`,
 	SET_CONFIRMATION_MAIL_TEXT:
 		`Bonjour, 
 		merci pour votre inscription à Wizz_Us, 

@@ -2,8 +2,9 @@ import { NextFunction, Response } from 'express'
 import { verify } from 'jsonwebtoken'
 import { ACCESS_TOKEN_SECRET } from '@config'
 import { HttpException } from '@exceptions/HttpException'
-import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface'
+import { DataStoredInToken } from '@interfaces/auth.interface'
 import UserService from '@/services/users.service'
+import { RequestWithUser } from '@/interfaces/request.interface'
 
 const userService = new UserService()
 
@@ -12,12 +13,12 @@ const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFun
     const { cookies, headers } = req
 
     if (!cookies || !cookies['access-token']) {
-      return next(new HttpException(404, 'Authentication token missing'))
+      return next(new HttpException(401, 'auth.token.missing'))
     }
     const accessToken: string = cookies['access-token']
 
     if (!headers || !headers['x-xsrf-token']) {
-      return next(new HttpException(404, 'Missing XSRF token in headers'))
+      return next(new HttpException(401, 'Missing XSRF token in headers'))
     }
     const xsrfToken = headers['x-xsrf-token']
 
